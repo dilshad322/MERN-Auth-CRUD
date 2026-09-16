@@ -1,0 +1,36 @@
+@import "tailwindcss";
+.loader {
+  width: 45px;
+  height: 45px;
+  border: 5px solid #5801B7;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media(max-width:767px){
+    .loader{
+        height: 40px;
+        width: 40px;
+          border-bottom-color: transparent;
+    }
+}
+@media(max-width:639px){
+    .loader{
+        height: 35px;
+        width: 35px;
+        border: 3.5px solid #5801B7;
+          border-bottom-color: transparent;
+    }
+}
