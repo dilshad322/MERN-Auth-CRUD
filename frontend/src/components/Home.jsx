@@ -10,8 +10,12 @@ const Home = () => {
     const navigate = useNavigate();
 
     const [products, setProducts] = useState([]);
-    const [loadingData, setLoadingData] = useState(true)
-    const [showProfile, setShowProfile] = useState(false)
+    const [loadingData, setLoadingData] = useState(true);
+    const [showProfile, setShowProfile] = useState(false);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+const [limit] = useState(10);
+const [totalPages, setTotalPages] = useState(1);
     const profileRef = useRef(null);
     const getProducts = async () => {
         try {
@@ -19,7 +23,7 @@ const Home = () => {
             const token = localStorage.getItem("token");
 
             const response = await axios.get(
-                "http://localhost:5000/products",
+                `http://localhost:5000/products?search=${search}&page=${page}&limit=${limit}`,
                 {
                     headers: {
                         Authorization: token
@@ -28,9 +32,9 @@ const Home = () => {
             );
 
             if (response.data.success) {
-                setProducts(response.data.products);
-                setLoadingData(false);
-                console.log("response.data.products", response.data.products)
+                 setProducts(response.data.products);
+    setTotalPages(response.data.totalPages);
+    setLoadingData(false);
             }
 
         } catch (error) {
@@ -44,6 +48,11 @@ const Home = () => {
         }
     };
 
+
+const handleSearch = (e) => {
+    setSearch(e.target.value);
+    setPage(1);
+};
   const deleteProduct = async (id) => {
      Swal.fire({
         title: "Are you sure?",
@@ -86,8 +95,14 @@ const Home = () => {
 
     const loggedInUser = localStorage.getItem("loggedInUser");
     useEffect(() => {
+  const timer = setTimeout(() => {
         getProducts();
-    }, []);
+    }, 500);
+
+    return () => {
+        clearTimeout(timer);
+    };
+    }, [search,page]);
 
 
 
@@ -121,7 +136,7 @@ const Home = () => {
 
 
     return (
-        <section className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <section className="bg-gray-50 dark:bg-gray-900 min-h-screen py-[50px]">
 
             {/* Header */}
 
@@ -139,52 +154,6 @@ const Home = () => {
                         </p>
 
                     </div>
-
-
-                    {/* <div className="flex items-center gap-4">
-
-            <div className="flex flex-col items-center gap-3 relative">
- <button
-        onClick={() => setShowProfile(!showProfile)}
-        className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200"
-    >
-     <FaUserAlt />
-    </button>
-          
-            {showProfile && (
-      <div
-            className={`
-                absolute z-50 right-0 top-12.5
-                w-50 md:w-75
-                bg-white border border-gray-200
-                rounded-lg shadow-lg p-5
-                transform origin-top-right
-                transition-all duration-300 ease-out
-                ${
-                    showProfile
-                        ? "opacity-100 scale-100 translate-y-0"
-                        : "opacity-0 scale-90 -translate-y-3 pointer-events-none"
-                }
-            `}
-        >
-       <p className="text-[12px] md:text-sm text-gray-500 dark:text-gray-400">
-                    Welcome back
-                </p>
-
-                <p className="text-sm md:text-base font-semibold text-gray-900 dark:text-white">
-                    Hello, {loggedInUser} 👋
-                </p>
-                  <button
-                onClick={handleLogout}
-                className="mt-3 text-white bg-red-600 hover:bg-red-700 focus:outline-none font-medium rounded-lg text-[12px] md:text-sm px-4 md:px-5 py-1.5 md:py-2.5"
-            >
-                Logout
-            </button>
-    </div>
-)}
-</div>
-        </div> */}
-
 
                     <div ref={profileRef} className=" relative">
 
@@ -262,10 +231,17 @@ const Home = () => {
                 </div>
 
 
-                {/* Product Table */}
+      <div className="flex justify-center md:justify-start">
+        <input className="px-4 py-1.5 md:px-5 md:py-2.5 w-[275px] md:w-[60%] border border-gray-300 rounded-full outline-none"
+        type="text"
+         placeholder="Search Product ..."
+         value={search}
+onChange={handleSearch}
+         />
+      </div>
 
                 {/* Desktop Table */}
-                <div className="hidden md:block relative overflow-x-auto bg-white rounded-lg shadow dark:bg-gray-800">
+                <div className="hidden md:block relative overflow-x-auto bg-white rounded-lg shadow dark:bg-gray-800 mt-4">
 
                     <table className="w-full table-fixed text-sm text-left text-gray-500 dark:text-gray-400">
 
@@ -410,7 +386,7 @@ const Home = () => {
 
 
                 {/* Mobile Cards */}
-                <div className="block md:hidden ">
+                <div className="block md:hidden mt-4">
 
                     {
                         loadingData ? (
@@ -493,6 +469,7 @@ const Home = () => {
                                                             </button>
 
                                                             <button
+                                                             onClick={()=>deleteProduct(product._id)}
                                                                 className="flex-1 text-red-600 border border-red-600 hover:bg-red-50 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:text-red-400 dark:border-red-400 dark:hover:bg-gray-700"
                                                             >
                                                                 Delete
@@ -524,7 +501,48 @@ const Home = () => {
 
 
             </div>
+<div className="flex justify-center items-center gap-2 mt-6">
 
+    {/* Previous Button */}
+    <button
+        onClick={() => setPage(page - 1)}
+        disabled={page === 1}
+         style={{
+        cursor: page === 1 ? "not-allowed" : "pointer"
+    }}
+        className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+        Previous
+    </button>
+
+    {/* Page Numbers */}
+    {Array.from({ length: totalPages }, (_, index) => (
+        <button
+            key={index}
+            onClick={() => setPage(index + 1)}
+            className={`px-4 py-2 rounded ${
+                page === index + 1
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200"
+            }`}
+        >
+            {index + 1}
+        </button>
+    ))}
+
+    {/* Next Button */}
+    <button
+        onClick={() => setPage(page + 1)}
+        disabled={page === totalPages}
+         style={{
+        cursor: page === totalPages ? "not-allowed" : "pointer"
+    }}
+        className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+    >
+        Next
+    </button>
+
+</div>
         </section>
     );
 };

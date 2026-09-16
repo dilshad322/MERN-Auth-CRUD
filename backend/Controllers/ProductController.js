@@ -31,10 +31,61 @@ const createProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
     try {
-        const products = await ProductModel.find({ createdBy: req.user._id });
+         const search = req.query.search || "";
+          // Pagination
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+const totalProducts = await ProductModel.countDocuments({
+    createdBy: req.user._id,
+    $or: [
+        {
+            name: {
+                $regex: search,
+                $options: "i"
+            }
+        },
+        {
+            category: {
+                $regex: search,
+                $options: "i"
+            }
+        }
+    ]
+});
+        const products = await ProductModel.find({ 
+            createdBy: req.user._id ,
+             $or: [
+                {
+                    name: {
+                        $regex: search,
+                        $options: "i"
+                    }
+                },
+                {
+                    category: {
+                        $regex: search,
+                        $options: "i"
+                    }
+                },
+                   
+            ]
+            
+        })
+        .skip(skip)
+            .limit(limit);
+
+
+        // Calculate total pages
+        const totalPages = Math.ceil(totalProducts / limit);
         return res.status(200).json({
             message: "Products fetched successfully",
-            success: true, products
+            success: true,
+             products,
+             currentPage: page,
+            limit,
+            totalProducts,
+            totalPages
         });
     }
     catch (err) {
@@ -44,6 +95,7 @@ const getProducts = async (req, res) => {
         });
     }
 };
+
 const updateProduct = async (req, res) => {
     try {
            const { id } = req.params;

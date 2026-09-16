@@ -13,7 +13,7 @@ const CreateProduct = () => {
         quantity: "",
         description: "",
     });
-
+const [errors, setErrors] = useState({});
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === "quantity" || name === "price") {
@@ -25,11 +25,63 @@ const CreateProduct = () => {
             ...form,
             [name]: value,
         });
+            let error = "";
+
+    if (name === "name") {
+        if (!value.trim()) {
+        error = "Name is required";
+    } 
+    else if (value.trim().length < 3) {
+        error = "Name must be at least 3 characters";
+    }
+    }
+
+    if (name === "price") {
+        if (!value.trim()) {
+        error = "Price is required";
+    } 
+    else if (Number(value) < 1) {
+        error = "Price must be at least 1 ";
+    }
+    }
+
+    if (name === "category") {
+        if (!value.trim()) {
+            error = "Category is required";
+        }
+    }
+
+    if (name === "quantity") {
+           if (!value.trim()) {
+        error = "Quantity is required";
+    } 
+    else if (Number(value) < 1) {
+        error = "Quantity must be at least 1 ";
+    }
+    }
+
+    if (name === "description") {
+        if (!value.trim()) {
+        error = "Description is required";
+    } 
+    else if (value.trim().length < 10) {
+        error = "Description must be at least 10 characters";
+    }
+    }
+
+    setErrors((prev) => ({
+        ...prev,
+        [name]: error
+    }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+ const isValid = validateForm();
 
+    if (!isValid) {
+        return;
+    }
         try {
             const token = localStorage.getItem("token");
 
@@ -62,7 +114,51 @@ const CreateProduct = () => {
             );
         }
     };
+const validateForm = () => {
 
+    const newErrors = {};
+
+    if (!form.name.trim()) {
+        newErrors.name = "Name is required";
+    } else if (form.name.trim().length < 3) {
+        newErrors.name = "Name must be at least 3 characters";
+    }
+
+    if (
+        form.price === "" ||
+        form.price === null ||
+        form.price === undefined
+    ) {
+        newErrors.price = "Price is required";
+    } else if (Number(form.price) < 1) {
+        newErrors.price = "Price must be at least 1";
+    }
+
+    if (!form.category.trim()) {
+        newErrors.category = "Category is required";
+    }
+
+    if (
+        form.quantity === "" ||
+        form.quantity === null ||
+        form.quantity === undefined
+    ) {
+        newErrors.quantity = "Quantity is required";
+    } else if (Number(form.quantity) < 1) {
+        newErrors.quantity = "Quantity must be at least 1";
+    }
+
+    if (!form.description.trim()) {
+        newErrors.description = "Description is required";
+    } else if (form.description.trim().length < 10) {
+        newErrors.description =
+            "Description must be at least 10 characters";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+};
     return (
         <section className="bg-gray-50 dark:bg-gray-900 min-h-screen">
             <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-10">
@@ -112,9 +208,14 @@ const CreateProduct = () => {
                                     value={form.name}
                                     onChange={handleChange}
                                     placeholder="Enter product name"
-                                    required
+                             
                                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 />
+                                {errors.name && (
+    <p className="text-red-500 text-[12px] md:text-sm font-medium mt-1">
+        {errors.name}
+    </p>
+)}
                             </div>
 
                             {/* Price + Quantity */}
@@ -135,9 +236,14 @@ const CreateProduct = () => {
                                         value={form.price}
                                         onChange={handleChange}
                                         placeholder="Enter price"
-                                        required
+                              
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     />
+                                    {errors.price && (
+    <p className="text-red-500 text-[12px] md:text-sm font-medium mt-1">
+        {errors.price}
+    </p>
+)}
                                 </div>
 
                                 <div>
@@ -155,9 +261,14 @@ const CreateProduct = () => {
                                         value={form.quantity}
                                         onChange={handleChange}
                                         placeholder="Enter quantity"
-                                        required
+                                  
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     />
+                                    {errors.quantity && (
+    <p className="text-red-500 text-[12px] md:text-sm font-medium mt-1">
+        {errors.quantity}
+    </p>
+)}
                                 </div>
 
                             </div>
@@ -176,7 +287,7 @@ const CreateProduct = () => {
                                     id="category"
                                     value={form.category}
                                     onChange={handleChange}
-                                    required
+                                
                                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                 >
                                     <option value="">
@@ -203,6 +314,11 @@ const CreateProduct = () => {
                                         Other
                                     </option>
                                 </select>
+                                {errors.category && (
+    <p className="text-red-500 text-[12px] md:text-sm font-medium mt-1">
+        {errors.category}
+    </p>
+)}
                             </div>
 
                             {/* Description */}
@@ -221,9 +337,14 @@ const CreateProduct = () => {
                                     value={form.description}
                                     onChange={handleChange}
                                     placeholder="Enter product description"
-                                    required
+                               
                                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 resize-none"
                                 />
+                                {errors.description && (
+    <p className="text-red-500 text-[12px] md:text-sm font-medium mt-1">
+        {errors.description}
+    </p>
+)}
                             </div>
 
                             {/* Submit */}
