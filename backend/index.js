@@ -1,10 +1,13 @@
+require("dotenv").config();
+console.log("EMAIL_PASS length:", process.env.EMAIL_PASS?.length);
+
 const express = require("express");
 const app = express();
 const bodyParser=require('body-parser');
 const cors=require('cors');
 const AuthRouter=require('./Routes/AuthRouter');
 const ProductRouter=require('./Routes/ProductRouter');
-require("dotenv").config();
+
 require("./Models/db");
 
 const PORT = process.env.PORT || 8080;

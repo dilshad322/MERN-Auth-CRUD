@@ -5,6 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 function Login() {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
         email: '',
         password: ''
@@ -60,7 +61,9 @@ function Login() {
         if (!isValid) {
             return;
         }
+         setLoading(true);
         try {
+          
             const response = await axios.post(
                 "http://localhost:5000/auth/login",
                 form
@@ -68,30 +71,22 @@ function Login() {
 const {success,message,name,jwtToken}=response.data;
            if(success){
  console.log(response.data);
+    setLoading(false);
             localStorage.setItem("token",jwtToken);
                 localStorage.setItem("loggedInUser",name);
             toast.success("Login Successfully")
             navigate('/');
            }
         } catch (error) {
-            handleError(error)
+            handleError(error);
+               setLoading(false);
         }
     };
     return (
         <>
             <section className="bg-gray-50 dark:bg-gray-900">
                 <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-                    <a
-                        href="#"
-                        className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
-                    >
-                        <img
-                            className="w-8 h-8 mr-2"
-                            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
-                            alt="logo"
-                        />
-                        Flowbite
-                    </a>
+                  
                     <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                         <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
@@ -115,9 +110,11 @@ const {success,message,name,jwtToken}=response.data;
                                         value={form.email}
                                         onChange={handleChange}
                                     />
-                                    {errors.email && (
-                                        <p className='text-[12px] text-red-600 font-medium'>{errors.email}</p>
-                                    )}
+                                                               {errors.email && (
+    <p className="text-red-500 text-[12px] md:text-sm font-medium mt-1">
+        {errors.email}
+    </p>
+)}
                                 </div>
                                 <div>
                                     <label
@@ -136,42 +133,34 @@ const {success,message,name,jwtToken}=response.data;
                                         value={form.password}
                                         onChange={handleChange}
                                     />
-                                      {errors.password && (
-                                        <p className='text-[12px] text-red-600 font-medium'>{errors.password}</p>
-                                    )}
+                                     {errors.password && (
+    <p className="text-red-500 text-[12px] md:text-sm font-medium mt-1">
+        {errors.password}
+    </p>
+)}
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-start">
-                                        <div className="flex items-center h-5">
-                                            <input
-                                                id="remember"
-                                                aria-describedby="remember"
-                                                type="checkbox"
-                                                className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800"
-                                                required=""
-                                            />
-                                        </div>
-                                        <div className="ml-3 text-sm">
-                                            <label
-                                                htmlFor="remember"
-                                                className="text-gray-500 dark:text-gray-300"
-                                            >
-                                                Remember me
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <a
-                                        href="#"
+                                <div className="flex items-center justify-end">
+                                   
+                                    <Link
+                                        to={'/forgot-password'}
                                         className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500"
                                     >
                                         Forgot password?
-                                    </a>
+                                    </Link>
                                 </div>
                                 <button
+                                 disabled={loading}
                                     type="submit"
                                     className="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                 >
-                                    Sign in
+{loading ? (
+        <>
+            <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+            Logging in...
+        </>
+    ) : (
+        "Sign in"
+    )}
                                 </button>
                                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                                     Don’t have an account yet?{" "}

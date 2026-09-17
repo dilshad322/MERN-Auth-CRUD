@@ -3,6 +3,7 @@ import { Link ,useNavigate} from 'react-router-dom'
 import axios from "axios";
 import { toast } from "react-toastify";
 export default function Signup() {
+      const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
       const [form, setForm] = useState({
             name:'',
@@ -66,36 +67,30 @@ const handleError = (error) => {
         if (!isValid) {
             return;
         }
+         setLoading(true);
            try {
             const response = await axios.post(
                 "http://localhost:5000/auth/signup",
                 form
             );
-    
-            console.log(response.data);
+        if(response.data.success){
+ console.log(response.data);
+             setLoading(false);
               toast.success("Signup Successfully")
               navigate('/login')
+        }
+           
 
     
         } catch (error) {
           handleError(error);
+            setLoading(false);
         }
         };
   return (
   <>
   <section className="bg-gray-50 dark:bg-gray-900">
   <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-    <a
-      href="#"
-      className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
-    >
-      <img
-        className="w-8 h-8 mr-2"
-        src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg"
-        alt="logo"
-      />
-      Flowbite
-    </a>
     <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
       <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
         <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
@@ -119,11 +114,11 @@ const handleError = (error) => {
               value={form.name}
                onChange={handleChange}
             />
-            {
-              errors.name && (
-                <p className='text-[12px] text-red-600 font-medium'>{errors.name}</p>
-              ) 
-            }
+                                       {errors.name && (
+    <p className="text-red-500 text-[12px] md:text-sm font-medium mt-1">
+        {errors.name}
+    </p>
+)}
           </div>
           <div>
             <label
@@ -142,11 +137,11 @@ const handleError = (error) => {
               value={form.email}
            onChange={handleChange}
             />
-              {
-              errors.email && (
-                <p className='text-[12px] text-red-600 font-medium'>{errors.email}</p>
-              ) 
-            }
+                                        {errors.email && (
+    <p className="text-red-500 text-[12px] md:text-sm font-medium mt-1">
+        {errors.email}
+    </p>
+)}
           </div>
           <div>
             <label
@@ -165,44 +160,26 @@ const handleError = (error) => {
                value={form.password}
                                          onChange={handleChange}
             />
-              {
-              errors.password && (
-                <p className='text-[12px] text-red-600 font-medium'>{errors.password}</p>
-              ) 
-            }
+                                         {errors.password && (
+    <p className="text-red-500 text-[12px] md:text-sm font-medium mt-1">
+        {errors.password}
+    </p>
+)}
           </div>
      
-          <div className="flex items-start">
-            <div className="flex items-center h-5">
-              <input
-                id="terms"
-                aria-describedby="terms"
-                type="checkbox"
-                className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800"
-                required=""
-               
-              />
-            </div>
-            <div className="ml-3 text-sm">
-              <label
-                htmlFor="terms"
-                className="font-light text-gray-500 dark:text-gray-300"
-              >
-                I accept the{" "}
-                <a
-                  className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                  href="#"
-                >
-                  Terms and Conditions
-                </a>
-              </label>
-            </div>
-          </div>
           <button
+             disabled={loading}
             type="submit"
             className="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
-            Create an account
+          {loading ? (
+        <>
+            <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+            Creating Account...
+        </>
+    ) : (
+        "Signup"
+    )}
           </button>
           <p className="text-sm font-light text-gray-500 dark:text-gray-400">
             Already have an account?{" "}

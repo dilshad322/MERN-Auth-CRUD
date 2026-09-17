@@ -10,6 +10,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import CreateProduct from './components/CreateProduct';
 import UpdateProduct from './components/UpdateProduct';
+import ResetPassword from './pages/ResetPassword';
+import ForgotPassword from './pages/ForgotPassword';
+import NotFound from './pages/NotFound';
 function App() {
 
 
@@ -42,6 +45,9 @@ function App() {
   />
   <Route path='/login' element={<PublicRoute><Login /></PublicRoute> }/>
     <Route path='/signup' element={<PublicRoute><Signup /></PublicRoute> }/>
+    <Route path="/reset-password/:token" element={<ResetPassword />}/>
+        <Route path="/forgot-password" element={<ForgotPassword />}/>
+        <Route path="*" element={<NotFound />} />
 </Routes>
             <ToastContainer />
     </>
